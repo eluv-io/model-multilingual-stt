@@ -1,1 +1,8 @@
 device: cuda
+
+runtime:
+  default:
+    model: llama3.3:70b
+    prompt: Translate the following French text to English, please maintain the timestamps from the input.
+
+llama: http://ml-004.eluvio:11434
