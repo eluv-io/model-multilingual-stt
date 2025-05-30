@@ -9,6 +9,7 @@ setup(
         'nemo_toolkit[all]',
         'quick_test_py @ git+https://github.com/elv-nickB/quick_test_py.git#egg=quick_test_py',
         'ollama',
-        'cuda-python>=12.3'
+        'deepmultilingualpunctuation==1.0.1',
+        'spacy==3.7.2',
     ]
 )

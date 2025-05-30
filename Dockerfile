@@ -24,6 +24,8 @@ RUN mkdir -p src
 
 RUN /opt/conda/envs/mlpod/bin/pip install .
 
+RUN /opt/conda/envs/mlpod/bin/python -m spacy download en_core_web_sm
+
 COPY src ./src
 COPY config.yml run.py config.py .
 
