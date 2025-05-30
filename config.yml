@@ -4,7 +4,7 @@ runtime:
   default:
     llama_host: http://ml-004.eluvio:11434
     llama_model: llama3.3:70b
-    prompt: Translate the following French text to English, please maintain the timestamps from the input.
+    prompt: Translate the following French text to English.
 
 postprocessing:
   # if words are this far apart, they are not considered for being in the same sentence. (in milliseconds)
