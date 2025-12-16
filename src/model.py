@@ -1,24 +1,20 @@
-
 from typing import List
-import json
 
-import nemo.collections.asr as nemo_asr\
-from common_ml.model import VideoModel
-from common_ml.tag_formatting import VideoTag
+import nemo.collections.asr as nemo_asr
+import torch
+from common_ml.tags import VideoTag
 from loguru import logger
 
-from config import config
 
-
-class EuroSTT(VideoModel):
+class EuroSTT:
     def __init__(self):
         self.model = nemo_asr.models.EncDecHybridRNNTCTCBPEModel.from_pretrained(
             model_name="stt_multilingual_fastconformer_hybrid_large_pc_blend_eu")
         self.frame_size = 80
 
-    def tag(self, fpath: str) -> List[VideoTag]:
+    def tag(self, audio_tensor: torch.Tensor) -> List[VideoTag]:
         hypothesis = self.model.transcribe(
-            [fpath], return_hypotheses=True, channel_selector='average')[0]
+            audio=audio_tensor, return_hypotheses=True)[0]
         toks = self.model.tokenizer.ids_to_tokens(
             [tok.item() for tok in hypothesis.y_sequence])
         word_level_timestamps = self._get_word_level_timestamps(

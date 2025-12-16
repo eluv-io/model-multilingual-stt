@@ -3,3 +3,8 @@ device: cuda
 postprocessing:
   # if words are this far apart, they are not considered for being in the same sentence. (in milliseconds)
   sentence_gap: 5000
+
+runtime:
+  default:
+    pretty_trail: false
+    pretty_trail_buffer: 60

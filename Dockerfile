@@ -23,6 +23,7 @@ COPY setup.py .
 RUN mkdir -p src
 
 RUN /opt/conda/envs/mlpod/bin/pip install .
+RUN /opt/conda/envs/mlpod/bin/pip install dacite setproctitle
 
 COPY src ./src
 COPY config.yml run.py config.py .
