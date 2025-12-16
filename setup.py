@@ -5,10 +5,8 @@ setup(
     version='0.1',
     packages=['src'],
     install_requires=[
-        'common_ml @ git+ssh://git@github.com/eluv-io/common-ml.git#egg=common_ml',
+        'common_ml @ git+https://github.com/eluv-io/common-ml.git#egg=common_ml',
         'nemo_toolkit[all]',
-        'quick_test_py @ git+https://github.com/eluv-io/quick-test-py.git#egg=quick_test_py',
-        'ollama',
         'deepmultilingualpunctuation==1.0.1',
         'spacy==3.7.2',
     ]

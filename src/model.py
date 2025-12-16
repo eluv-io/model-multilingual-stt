@@ -2,8 +2,7 @@
 from typing import List
 import json
 
-import nemo.collections.asr as nemo_asr
-import ollama
+import nemo.collections.asr as nemo_asr\
 from common_ml.model import VideoModel
 from common_ml.tag_formatting import VideoTag
 from loguru import logger
@@ -16,9 +15,6 @@ class EuroSTT(VideoModel):
         self.model = nemo_asr.models.EncDecHybridRNNTCTCBPEModel.from_pretrained(
             model_name="stt_multilingual_fastconformer_hybrid_large_pc_blend_eu")
         self.frame_size = 80
-        self.translator = ollama.Client(config["llama"])
-        self.llama_model = "llama3.3:70b"
-        self.prompt = "Translate the following French text to English, please maintain the timestamps from the input."
 
     def tag(self, fpath: str) -> List[VideoTag]:
         hypothesis = self.model.transcribe(
@@ -33,25 +29,6 @@ class EuroSTT(VideoModel):
             zip(hypothesis.text.split(), word_level_timestamps))
         # convert tuples to lists
         timesteps_w_words = [[word, ts] for word, ts in timesteps_w_words]
-
-        prompt = f"{self.prompt}\n" + str(timesteps_w_words) + \
-            "\nOutput your response in the following format: {\"translation\": [[word1, timestamp1], [word2, timestamp2], ...]}. Do not output anything else."
-
-        raw_response = self.translator.generate(
-            model=self.llama_model,
-            stream=False,
-            prompt=prompt,
-            options={'seed': 1, "temperature": 0.0})["response"]
-
-        try:
-            response = raw_response[raw_response.index(
-                "{"):raw_response.index("}") + 1]
-            response = json.loads(response)
-            timesteps_w_words = response['translation']
-        except Exception as e:
-            logger.debug(f"Raw response:\n {raw_response}")
-            logger.error(f"Error parsing translation response: {e}")
-            return []
 
         if not timesteps_w_words:
             logger.debug("No words found in transcription.")
