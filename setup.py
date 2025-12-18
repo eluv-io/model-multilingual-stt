@@ -9,5 +9,7 @@ setup(
         'nemo_toolkit[all]',
         'deepmultilingualpunctuation==1.0.1',
         'spacy==3.7.2',
+        'dacite',
+        'setproctitle'
     ]
 )
