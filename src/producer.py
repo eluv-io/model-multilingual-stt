@@ -1,9 +1,9 @@
-from typing import List, Optional, Iterator
+from typing import List, Iterator
 from dataclasses import dataclass, asdict
 import torch
 from loguru import logger
 
-from common_ml.tagging.producer import TagMessageProducer, TagMessage, ProgressMessage, ErrorMessage, Message, Error, Tag, Progress
+from common_ml.tagging.producer import TagMessageProducer, Message, Error, Tag, Progress
 
 from src.model import EuroSTT, OutputTag
 from src.audio import audio_file_to_tensor
@@ -66,15 +66,11 @@ class ASRProducer(TagMessageProducer):
                     output_tags = self._add_augmented_fields(tags, fname, "")
                     yield from self._tags_to_messages(output_tags)
                 elif not self.cfg.pretty_trail:
-                    yield ProgressMessage(
-                        type="progress",
-                        data=Progress(source_media=fname),
-                    )
+                    yield Progress(source_media=fname)
 
                 if self.cfg.pretty_trail and buffer is not None:
                     buffer.add(audio_tensor, duration)
                     pending_files.append(fname)
-
                     if buffer.is_ready(self.cfg.pretty_trail_buffer):
                         yield from self._emit_prettified_trail(buffer, pending_files)
                         pending_files = []
@@ -82,10 +78,7 @@ class ASRProducer(TagMessageProducer):
 
             except Exception as e:
                 logger.opt(exception=e).error(f"Error processing file {fname}")
-                yield ErrorMessage(
-                    type="error",
-                    data=Error(source_media=fname, message=str(e)),
-                )
+                yield Error(source_media=fname, message=str(e))
 
         # Finalize: flush remaining buffer
         if self.cfg.pretty_trail and buffer is not None and not buffer.is_empty():
@@ -105,14 +98,11 @@ class ASRProducer(TagMessageProducer):
             for tag in tags
         ]
 
-    def _tags_to_messages(self, tags: List[Tag]) -> Iterator[TagMessage]:
+    def _tags_to_messages(self, tags: List[Tag]) -> Iterator[Tag]:
         for tag in tags:
             data = asdict(tag)
             data = {k: v for k, v in data.items() if v is not None}
-            yield TagMessage(
-                type="tag",
-                data=tag,
-            )
+            yield tag
 
     def _emit_prettified_trail(
         self, buffer: AudioBuffer, pending_files: List[str]
@@ -131,10 +121,7 @@ class ASRProducer(TagMessageProducer):
             yield from self._tags_to_messages(augmented)
 
         for fname in pending_files:
-            yield ProgressMessage(
-                type="progress",
-                data=Progress(source_media=fname),
-            )
+            yield Progress(source_media=fname)
 
     def _merge_to_sentences(self, tags: List[OutputTag]) -> List[OutputTag]:
         if len(tags) == 0:
