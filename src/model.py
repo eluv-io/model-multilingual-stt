@@ -1,10 +1,17 @@
 from typing import List
+from dataclasses import dataclass
 
 import nemo.collections.asr as nemo_asr
 import torch
-from common_ml.tags import VideoTag
 from loguru import logger
 
+from common_ml.tagging.models.tag_types import Tag
+
+@dataclass(frozen=True)
+class OutputTag:
+    start_time: int
+    end_time: int
+    tag: str
 
 class EuroSTT:
     def __init__(self):
@@ -12,7 +19,7 @@ class EuroSTT:
             model_name="stt_multilingual_fastconformer_hybrid_large_pc_blend_eu")
         self.frame_size = 80
 
-    def tag(self, audio_tensor: torch.Tensor) -> List[VideoTag]:
+    def tag(self, audio_tensor: torch.Tensor) -> List[OutputTag]:
         hypothesis = self.model.transcribe(
             audio=audio_tensor, return_hypotheses=True)[0]
         toks = self.model.tokenizer.ids_to_tokens(
@@ -33,10 +40,10 @@ class EuroSTT:
         tags = []
         for word, ts in timesteps_w_words:
             ts = int(ts)
-            tags.append(VideoTag(
+            tags.append(OutputTag(
                 start_time=ts,
                 end_time=ts,
-                text=word,
+                tag=word,
             ))
 
         return tags
