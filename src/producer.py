@@ -65,6 +65,11 @@ class ASRProducer(TagMessageProducer):
                 if len(tags) > 0:
                     output_tags = self._add_augmented_fields(tags, fname, "")
                     yield from self._tags_to_messages(output_tags)
+                elif not self.cfg.pretty_trail:
+                    yield ProgressMessage(
+                        type="progress",
+                        data=Progress(source_media=fname),
+                    )
 
                 if self.cfg.pretty_trail and buffer is not None:
                     buffer.add(audio_tensor, duration)
@@ -119,13 +124,11 @@ class ASRProducer(TagMessageProducer):
         first_fname = pending_files[0]
 
         tags = self.model.tag(combined_tensor)
-        if len(tags) == 0:
-            return
+        if tags:
+            sentence_tags = self._merge_to_sentences(tags)
+            augmented = self._add_augmented_fields(sentence_tags, first_fname, "auto_captions")
 
-        sentence_tags = self._merge_to_sentences(tags)
-        augmented = self._add_augmented_fields(sentence_tags, first_fname, "auto_captions")
-
-        yield from self._tags_to_messages(augmented)
+            yield from self._tags_to_messages(augmented)
 
         for fname in pending_files:
             yield ProgressMessage(
