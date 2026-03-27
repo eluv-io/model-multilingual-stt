@@ -19,25 +19,30 @@ class RuntimeConfig:
 
 class AudioBuffer:
     """Accumulates audio tensors and metadata for trailing buffer processing"""
-
+    
     def __init__(self):
-        self.tensors: List[torch.Tensor] = []
+        self.tensors: list[torch.Tensor] = []
         self.total_duration: float = 0.0
-
+    
     def add(self, tensor: torch.Tensor, duration: float):
+        """Add audio to buffer"""
         self.tensors.append(tensor)
         self.total_duration += duration
-
+    
     def get_combined_tensor(self) -> torch.Tensor:
-        return torch.cat(self.tensors, dim=1)
-
+        """Concatenate all tensors"""
+        print([t.shape for t in self.tensors])
+        return torch.cat(self.tensors)
+    
     def clear(self):
+        """Clear the buffer"""
         self.tensors = []
         self.total_duration = 0.0
-
+    
     def is_ready(self, threshold: float) -> bool:
+        """Check if buffer has reached threshold duration"""
         return self.total_duration >= threshold
-
+    
     def is_empty(self) -> bool:
         return len(self.tensors) == 0
 
